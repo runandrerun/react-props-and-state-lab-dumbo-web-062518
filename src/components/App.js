@@ -15,6 +15,48 @@ class App extends React.Component {
     }
   }
 
+  onChangeType = (select) => {
+    this.setState({filters: {
+        type: select.target.value
+      }
+    })
+  }
+
+  fetchAllPets = () => {
+    if (this.state.filters.type === 'all') {
+      return fetch('/api/pets')
+        .then(res => res.json())
+        .then(data => this.setState({
+          pets: data
+        })
+      )
+    } else {
+      return fetch(`/api/pets?type=${this.state.filters.type}`)
+        .then(res => res.json())
+        .then(data => this.setState({
+          pets: data
+        })
+      )
+    }
+  }
+
+  onAdoptPet = (id) => {
+    // let pets = this.state.pets.map(pet => {
+    //   return pet.id === id ? {...pet, isAdopted: true} : pet
+    // })
+    // this.setState({
+    //   pets
+    // })
+    const foundPet = this.state.pets.find(pet => {
+      return pet.id === id
+    })
+    foundPet.isAdopted = true
+
+    this.setState(
+      foundPet
+    )
+  };
+
   render() {
     return (
       <div className="ui container">
@@ -24,10 +66,10 @@ class App extends React.Component {
         <div className="ui container">
           <div className="ui grid">
             <div className="four wide column">
-              <Filters />
+              <Filters onChangeType={this.onChangeType} onFindPetsClick={this.fetchAllPets}/>
             </div>
             <div className="twelve wide column">
-              <PetBrowser />
+              <PetBrowser pets={this.state.pets} onAdoptPet={this.onAdoptPet}/>
             </div>
           </div>
         </div>
@@ -35,5 +77,7 @@ class App extends React.Component {
     )
   }
 }
+
+
 
 export default App
